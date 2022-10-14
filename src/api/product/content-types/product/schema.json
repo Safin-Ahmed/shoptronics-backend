@@ -73,6 +73,11 @@
       "relation": "manyToMany",
       "target": "api::sub-category.sub-category",
       "inversedBy": "products"
+    },
+    "attributes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::attribute.attribute"
     }
   }
 }
