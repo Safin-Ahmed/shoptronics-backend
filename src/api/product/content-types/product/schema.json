@@ -78,6 +78,11 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::attribute.attribute"
+    },
+    "attribute_terms": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::attributeterm.attributeterm"
     }
   }
 }
