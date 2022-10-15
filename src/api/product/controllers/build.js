@@ -16,7 +16,7 @@ module.exports = {
       const generateCombination = (arr) => {
         return arr.reduce(
           (acc, cur) => {
-            acc
+            return acc
               .map((x) => {
                 return cur.map((y) => {
                   return x.concat([y]);
@@ -28,7 +28,18 @@ module.exports = {
         );
       };
 
-      //   ctx.send({ message: "OK", product });
+      const capitalize = (str) => {
+        if (typeof str !== "string") return;
+
+        return str
+          .split(" ")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      };
+
+      console.log({ product });
+
+      ctx.send({ message: "OK", product });
     } catch (e) {
       ctx.send({ error: e });
     }
