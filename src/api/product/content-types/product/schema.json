@@ -79,10 +79,17 @@
       "relation": "oneToMany",
       "target": "api::attribute.attribute"
     },
-    "attribute_terms": {
+    "stock": {
+      "type": "integer",
+      "default": 0,
+      "min": 1,
+      "required": true
+    },
+    "variations": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::attributeterm.attributeterm"
+      "target": "api::variation.variation",
+      "mappedBy": "product"
     }
   }
 }

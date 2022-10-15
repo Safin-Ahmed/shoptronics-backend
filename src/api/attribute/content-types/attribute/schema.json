@@ -4,7 +4,8 @@
   "info": {
     "singularName": "attribute",
     "pluralName": "attributes",
-    "displayName": "attribute"
+    "displayName": "attribute",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -20,6 +21,11 @@
       "type": "uid",
       "targetField": "name",
       "required": true
+    },
+    "options": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::attributeterm.attributeterm"
     }
   }
 }
