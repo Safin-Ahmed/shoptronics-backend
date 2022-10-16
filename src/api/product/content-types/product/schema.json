@@ -90,6 +90,11 @@
       "relation": "oneToMany",
       "target": "api::variation.variation",
       "mappedBy": "product"
+    },
+    "options": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::attributeterm.attributeterm"
     }
   }
 }
