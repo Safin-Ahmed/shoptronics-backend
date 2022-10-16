@@ -1,0 +1,35 @@
+{
+  "kind": "collectionType",
+  "collectionName": "order_invoices",
+  "info": {
+    "singularName": "order-invoice",
+    "pluralName": "order-invoices",
+    "displayName": "OrderInvoice",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "subTotal": {
+      "type": "integer",
+      "required": true,
+      "min": 1
+    },
+    "products": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::product.product"
+    },
+    "deliveryFee": {
+      "type": "integer"
+    },
+    "totalPrice": {
+      "type": "integer",
+      "required": true,
+      "unique": false,
+      "min": 1
+    }
+  }
+}

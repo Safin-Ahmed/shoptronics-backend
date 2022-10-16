@@ -4,21 +4,56 @@
   "info": {
     "singularName": "order",
     "pluralName": "orders",
-    "displayName": "order"
+    "displayName": "order",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
-    "customerName": {
+    "firstName": {
+      "type": "string",
+      "required": true
+    },
+    "lastName": {
+      "type": "string",
+      "required": true
+    },
+    "phone": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "required": true
+    },
+    "address": {
+      "type": "string",
+      "required": true
+    },
+    "note": {
       "type": "string"
     },
-    "customerEmail": {
-      "type": "email"
+    "products": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::product.product"
     },
-    "orderPrice": {
-      "type": "integer"
+    "orderStatus": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::order-status.order-status"
+    },
+    "paymentMethod": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::payment-method.payment-method"
+    },
+    "invoice": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::order-invoice.order-invoice"
     }
   }
 }

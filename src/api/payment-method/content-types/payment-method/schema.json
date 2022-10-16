@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "payment_methods",
+  "info": {
+    "singularName": "payment-method",
+    "pluralName": "payment-methods",
+    "displayName": "PaymentMethod"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "paymentMethod": {
+      "type": "enumeration",
+      "enum": [
+        "COD",
+        "Bkash",
+        "Stripe"
+      ]
+    }
+  }
+}
