@@ -30,6 +30,16 @@
       "required": true,
       "unique": false,
       "min": 1
+    },
+    "variations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::variation.variation"
+    },
+    "quantity": {
+      "type": "integer",
+      "required": true,
+      "min": 1
     }
   }
 }

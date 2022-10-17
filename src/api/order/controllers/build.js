@@ -1,18 +1,52 @@
 module.exports = {
     generate: async (ctx, next) => {
         try {
-            const { firstName, lastName, email, phone, address, note, customerId, paymentMethod, products } = ctx.request.body;
+            const { firstName, lastName, email, phone, address, note, paymentMethod, cart } = ctx.request.body;
 
-            
+
+            const productIds = [];
+            const variationIds = [];
+            const quantity = [];
+            const productCurrentStocks = [];
+
 
 
             // PRODUCT PRICE CALCULATION
             let subTotal = 0;
             const deliveryFee = 100;
-            for (let i = 0; i < products.length; i++) {
-                const product = await strapi.services["api::product.product"].findOne(products[i]);
-                subTotal += product.discountPrice || product.price;
+            for (let i = 0; i < cart.length; i++) {
+                const product = await strapi.services["api::product.product"].findOne(cart[i].productId);
+
+
+                // CHECK PRODUCT QUANTITY AVAILABILITY
+                if (cart[i].quantity < 1) {
+                    return ctx.throw(400, 'You have to add minimum quantity!');
+                } else if (product.stock < cart[i].quantity) {
+                    return ctx.throw(400, 'Stock Unavailable!');
+                }
+
+
+
+                // PUSH PRODUCT ID, VARIANT, QUANTITY AND STOCKS
+                productIds.push(cart[i].productId);
+                variationIds.push(cart[i].variantId);
+                quantity.push(cart[i].quantity);
+                productCurrentStocks.push(product.stock);
+
+
+                // GET USER SELECTED VARIANT
+                const variant = await strapi.services["api::variation.variation"].findOne(cart[i].variantId);
+
+
+
+                // IF HAVE PRODUCT VARIANT PRICE TAKEN FROM VARIANT OTHERWISE PRICE TAKEN FROM MAIN PRODUCT
+                if (variant) {
+                    subTotal += variant.discountPrice || variant.price;
+                } else {
+                    subTotal += product.discountPrice || product.price;
+                }
             }
+
 
 
             // CREATE INVOICE
@@ -20,7 +54,9 @@ module.exports = {
                 subTotal,
                 deliveryFee,
                 totalPrice: subTotal + deliveryFee,
-                products
+                products: productIds,
+                variations: variationIds,
+                quantity
             }
             const createInvoice = await strapi.services["api::order-invoice.order-invoice"].create({ data: invoice });
 
@@ -30,12 +66,11 @@ module.exports = {
             const allOrderStatus = await strapi.services["api::order-status.order-status"].find();
             const orderStatus = allOrderStatus.results;
 
-            for(let i=0;  i < orderStatus.length; i++){
-                if(orderStatus[i].orderStatus === 'pending'){
+            for (let i = 0; i < orderStatus.length; i++) {
+                if (orderStatus[i].orderStatus === 'pending') {
                     pendingOrderStatusId = orderStatus[i].id;
                 }
             }
-
 
 
             // CREATE ORDER
@@ -46,13 +81,22 @@ module.exports = {
                 phone,
                 address,
                 note,
-                customerId, //Customer id will get from user auth token
+                customer: ctx.state.user.id,
                 paymentMethod,
                 invoice: createInvoice.id,
                 orderStatus: pendingOrderStatusId,
-                products,
+                products: productIds,
             }
             const createOrder = await strapi.services["api::order.order"].create({ data: productObj });
+
+
+
+            // IF PRODUCT CREATED SUCCESSFULLY THEN MINUS PRODUCT STOCK
+            for (let i = 0; productIds.length > i; i++) {
+                await strapi.services["api::product.product"].update(productIds[i], { data: { stock: Number(productCurrentStocks[i]) - Number(cart[i].quantity) } })
+            }
+
+
             ctx.send({ message: "Order created successfully!", payload: createOrder });
         } catch (e) {
             ctx.send({ error: e });
