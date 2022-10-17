@@ -21,6 +21,11 @@
       "type": "uid",
       "targetField": "name",
       "required": true
+    },
+    "attribute": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::attribute.attribute"
     }
   }
 }
