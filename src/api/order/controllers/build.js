@@ -4,6 +4,21 @@ module.exports = {
             const { firstName, lastName, email, phone, address, note, paymentMethod, cart } = ctx.request.body;
 
 
+            /*
+            [
+                {
+                    "productId": 1,
+                    "quantity": 2,
+                    "variantId": 1
+                },
+                {
+                    "productId": 4,
+                    "quantity": 3,
+                    "variantId": 2
+                }
+            ]
+            */
+
             const productIds = [];
             const variationIds = [];
             const quantity = [];
@@ -41,9 +56,9 @@ module.exports = {
 
                 // IF HAVE PRODUCT VARIANT PRICE TAKEN FROM VARIANT OTHERWISE PRICE TAKEN FROM MAIN PRODUCT
                 if (variant) {
-                    subTotal += variant.discountPrice || variant.price;
+                    subTotal += (variant.discountPrice || variant.price) * cart[i].quantity;
                 } else {
-                    subTotal += product.discountPrice || product.price;
+                    subTotal += (product.discountPrice || product.price) * cart[i].quantity;
                 }
             }
 
