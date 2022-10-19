@@ -4,21 +4,79 @@
   "info": {
     "singularName": "order",
     "pluralName": "orders",
-    "displayName": "order"
+    "displayName": "order",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
-    "customerName": {
+    "firstName": {
+      "type": "string",
+      "required": true
+    },
+    "lastName": {
+      "type": "string",
+      "required": true
+    },
+    "phone": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "required": true
+    },
+    "address": {
+      "type": "string",
+      "required": true
+    },
+    "note": {
       "type": "string"
     },
-    "customerEmail": {
-      "type": "email"
+    "customer": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
     },
-    "orderPrice": {
-      "type": "integer"
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "confirmed",
+        "delivered"
+      ],
+      "default": "pending",
+      "required": true
+    },
+    "paymentMethod": {
+      "type": "enumeration",
+      "enum": [
+        "COD",
+        "Bkash",
+        "Stripe"
+      ],
+      "required": true,
+      "default": "COD"
+    },
+    "total": {
+      "type": "decimal",
+      "required": true
+    },
+    "subTotal": {
+      "type": "decimal",
+      "required": true
+    },
+    "deliveryFee": {
+      "type": "decimal",
+      "required": false
+    },
+    "order_details": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order-detail.order-detail",
+      "mappedBy": "order"
     }
   }
 }
