@@ -20,7 +20,6 @@ module.exports = {
             const productIds = [];
             const variationIds = [];
             const quantity = [];
-            const productCurrentStocks = [];
 
 
 
@@ -28,14 +27,38 @@ module.exports = {
             let subTotal = 0;
             const deliveryFee = 100;
             for (let i = 0; i < cart.length; i++) {
-                const product = await strapi.services["api::product.product"].findOne(cart[i].productId);
-
 
                 // CHECK PRODUCT QUANTITY AVAILABILITY
                 if (cart[i].quantity < 1) {
                     return ctx.throw(400, 'You have to add minimum quantity!');
-                } else if (product.stock < cart[i].quantity) {
-                    return ctx.throw(400, 'Stock Unavailable!');
+                }
+
+
+
+                // GET USER SELECTED VARIANT
+                const variant = await strapi.services["api::variation.variation"].findOne(cart[i].variantId);
+                if (cart.variantId && variant) {
+                    if (variant.stock < cart[i].quantity) {
+                        return ctx.throw(400, 'Stock Unavailable!');
+                    }
+                    subTotal += (variant.discountPrice || variant.price) * cart[i].quantity
+
+
+                    // MINUS STOCK
+                    await strapi.services["api::variation.variation"].update(variant.id, { data: { stock: variant.stock - cart[i].quantity } })
+
+                } else {
+                    const product = await strapi.services["api::product.product"].findOne(cart[i].productId);
+
+                    if (product.stock < cart[i].quantity) {
+                        return ctx.throw(400, 'Stock Unavailable!');
+                    }
+
+                    subTotal += (variant.discountPrice || variant.price) * cart[i].quantity
+
+
+                    // MINUS STOCK
+                    await strapi.services["api::product.product"].update(product.id, { data: { stock: product.stock - cart[i].quantity } })
                 }
 
 
@@ -44,20 +67,6 @@ module.exports = {
                 productIds.push(cart[i].productId);
                 variationIds.push(cart[i].variantId);
                 quantity.push(cart[i].quantity);
-                productCurrentStocks.push(product.stock);
-
-
-                // GET USER SELECTED VARIANT
-                const variant = await strapi.services["api::variation.variation"].findOne(cart[i].variantId);
-
-
-
-                // IF HAVE PRODUCT VARIANT PRICE TAKEN FROM VARIANT OTHERWISE PRICE TAKEN FROM MAIN PRODUCT
-                if (variant) {
-                    subTotal += (variant.discountPrice || variant.price) * cart[i].quantity;
-                } else {
-                    subTotal += (product.discountPrice || product.price) * cart[i].quantity;
-                }
             }
 
 
@@ -89,14 +98,6 @@ module.exports = {
                 products: productIds,
             }
             const createOrder = await strapi.services["api::order.order"].create({ data: productObj });
-
-
-
-            // IF PRODUCT CREATED SUCCESSFULLY THEN MINUS PRODUCT STOCK
-            for (let i = 0; productIds.length > i; i++) {
-                await strapi.services["api::product.product"].update(productIds[i], { data: { stock: Number(productCurrentStocks[i]) - Number(cart[i].quantity) } })
-            }
-
 
             ctx.send({ message: "Order created successfully!", payload: createOrder });
         } catch (e) {
