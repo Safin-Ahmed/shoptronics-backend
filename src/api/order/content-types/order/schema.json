@@ -35,17 +35,12 @@
     "note": {
       "type": "string"
     },
-    "invoice": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::order-invoice.order-invoice"
-    },
     "customer": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"
     },
-    "orderStatus": {
+    "status": {
       "type": "enumeration",
       "enum": [
         "pending",
@@ -64,6 +59,24 @@
       ],
       "required": true,
       "default": "COD"
+    },
+    "total": {
+      "type": "decimal",
+      "required": true
+    },
+    "subTotal": {
+      "type": "decimal",
+      "required": true
+    },
+    "deliveryFee": {
+      "type": "decimal",
+      "required": false
+    },
+    "order_details": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order-detail.order-detail",
+      "mappedBy": "order"
     }
   }
 }
