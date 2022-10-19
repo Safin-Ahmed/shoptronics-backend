@@ -2,8 +2,6 @@ module.exports = {
     generate: async (ctx, next) => {
         try {
             const { firstName, lastName, email, phone, address, note, paymentMethod, cart } = ctx.request.body;
-
-
             /*
             [
                 {
@@ -76,18 +74,6 @@ module.exports = {
             const createInvoice = await strapi.services["api::order-invoice.order-invoice"].create({ data: invoice });
 
 
-            // FIND ORDER STATUS PENDING ID
-            let pendingOrderStatusId = 0;
-            const allOrderStatus = await strapi.services["api::order-status.order-status"].find();
-            const orderStatus = allOrderStatus.results;
-
-            for (let i = 0; i < orderStatus.length; i++) {
-                if (orderStatus[i].orderStatus === 'pending') {
-                    pendingOrderStatusId = orderStatus[i].id;
-                }
-            }
-
-
             // CREATE ORDER
             const productObj = {
                 firstName,
@@ -97,9 +83,9 @@ module.exports = {
                 address,
                 note,
                 customer: ctx.state.user.id,
-                paymentMethod,
                 invoice: createInvoice.id,
-                orderStatus: pendingOrderStatusId,
+                paymentMethod,
+                orderStatus: "pending",
                 products: productIds,
             }
             const createOrder = await strapi.services["api::order.order"].create({ data: productObj });

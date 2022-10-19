@@ -35,21 +35,6 @@
     "note": {
       "type": "string"
     },
-    "products": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::product.product"
-    },
-    "orderStatus": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::order-status.order-status"
-    },
-    "paymentMethod": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::payment-method.payment-method"
-    },
     "invoice": {
       "type": "relation",
       "relation": "oneToOne",
@@ -59,6 +44,26 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"
+    },
+    "orderStatus": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "confirmed",
+        "delivered"
+      ],
+      "default": "pending",
+      "required": true
+    },
+    "paymentMethod": {
+      "type": "enumeration",
+      "enum": [
+        "COD",
+        "Bkash",
+        "Stripe"
+      ],
+      "required": true,
+      "default": "COD"
     }
   }
 }
