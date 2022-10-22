@@ -9,7 +9,9 @@
     "build": "strapi build",
     "strapi": "strapi"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0"
+  },
   "dependencies": {
     "@strapi/plugin-graphql": "^4.4.3",
     "@strapi/plugin-i18n": "4.4.3",

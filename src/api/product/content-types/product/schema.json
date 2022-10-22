@@ -34,7 +34,7 @@
     "image": {
       "type": "media",
       "multiple": false,
-      "required": true,
+      "required": false,
       "allowedTypes": [
         "images"
       ]
@@ -42,7 +42,7 @@
     "slug": {
       "type": "uid",
       "targetField": "title",
-      "required": true
+      "required": false
     },
     "isTrending": {
       "type": "boolean",
