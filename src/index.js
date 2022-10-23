@@ -19,7 +19,20 @@ module.exports = {
    */
   async bootstrap({ strapi }) {
     const count = await strapi.db.query("api::product.product").count();
-    console.log({ count });
+    const attributes = await strapi.entityService.findMany(
+      "api::attribute.attribute"
+    );
+    const attributesTerms = await strapi.entityService.findMany(
+      "api::attributeterm.attributeterm",
+      {
+        populate: ["attribute"],
+      }
+    );
+
+    // const attributesArray = attributes.reduce((acc, cur) => {
+    //   return (acc = [...acc, cur.id]);
+    // }, []);
+
     if (count > 0) {
       return;
     }
@@ -27,9 +40,23 @@ module.exports = {
     for (let i = 0; i < 100; i++) {
       const title = faker.helpers.unique(faker.commerce.productName);
       const slug = faker.helpers.slugify(title.toLowerCase());
+      const productAttributes =
+        faker.helpers.maybe(() => faker.helpers.arrayElements(attributes), {
+          probability: 0.5,
+        }) || null;
+
+      const productAttributeTerms = productAttributes
+        ? productAttributes
+            .map((item) =>
+              attributesTerms.filter((term) => term.attribute.id === item.id)
+            )
+            .flat()
+        : null;
+
       await strapi.entityService.create("api::product.product", {
         data: {
           title,
+          slug,
           description: faker.commerce.productDescription(),
           price: faker.commerce.price(),
           discountPrice:
@@ -38,6 +65,8 @@ module.exports = {
             }) || null,
           isTrending: faker.helpers.maybe(() => true, { probability: 0.3 }),
           stock: Math.floor(Math.random() * (100 - 20 + 1) + 20),
+          attributes: productAttributes,
+          options: productAttributeTerms,
         },
       });
     }

@@ -63,7 +63,7 @@ module.exports = {
         );
 
         const slug = variation.reduce(
-          (acc, cur) => acc + "-" + cur.replace(/ /g, "-"),
+          (acc, cur) => (acc + "-" + cur.replace(/ /g, "-")).toLowerCase(),
           product.slug
         );
 
@@ -96,15 +96,15 @@ module.exports = {
             });
           })
         );
-        return ctx.send({
-          msg: "Variation creation successful!",
+        return console.log({
+          msg: "vartions created",
           createAllRecords,
         });
       } catch (e) {
         console.error(e);
       }
     } catch (e) {
-      return ctx.send({ error: e });
+      return ctx?.send({ error: e });
     }
   },
 };
