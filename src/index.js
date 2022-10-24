@@ -29,11 +29,16 @@ module.exports = {
       }
     );
 
-    // const attributesArray = attributes.reduce((acc, cur) => {
-    //   return (acc = [...acc, cur.id]);
-    // }, []);
+    const categories = await strapi.entityService.findMany(
+      "api::category.category",
+      {
+        populate: ["sub_categories"],
+      }
+    );
 
-    if (count > 0) {
+    const brands = await strapi.entityService.findMany("api::brand.brand");
+
+    if (count > 0 || categories.length < 1 || brands.length < 1) {
       return;
     }
 
@@ -53,6 +58,13 @@ module.exports = {
             .flat()
         : null;
 
+      const mainCategories = faker.helpers.arrayElements(categories);
+      const subCategories = faker.helpers
+        .arrayElements(mainCategories.map((item) => item.sub_categories))
+        .flat();
+
+      const imgUrl = faker.image.abstract(800, 800, true);
+
       await strapi.entityService.create("api::product.product", {
         data: {
           title,
@@ -67,6 +79,10 @@ module.exports = {
           stock: Math.floor(Math.random() * (100 - 20 + 1) + 20),
           attributes: productAttributes,
           options: productAttributeTerms,
+          categories: mainCategories,
+          sub_categories: subCategories,
+          imgUrl,
+          brand: faker.helpers.arrayElement(brands),
         },
       });
     }

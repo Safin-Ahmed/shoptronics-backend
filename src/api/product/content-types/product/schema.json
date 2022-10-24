@@ -31,12 +31,6 @@
       "type": "integer",
       "default": 0
     },
-    "image": {
-      "type": "media",
-      "multiple": false,
-      "required": false,
-      "allowedTypes": ["images"]
-    },
     "slug": {
       "type": "uid",
       "targetField": "title",
@@ -93,6 +87,9 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::attributeterm.attributeterm"
+    },
+    "imgUrl": {
+      "type": "string"
     }
   }
 }

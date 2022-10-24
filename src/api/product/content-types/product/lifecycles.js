@@ -1,7 +1,6 @@
 module.exports = {
   async afterCreate(event) {
     const { result, params } = event;
-    console.log({ result, params });
     if (
       (result?.attributes?.length > 0 ||
         params?.data?.attributes?.length > 0) &&
