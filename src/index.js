@@ -38,7 +38,13 @@ module.exports = {
 
     const brands = await strapi.entityService.findMany("api::brand.brand");
 
-    if (count > 0 || categories.length < 1 || brands.length < 1) {
+    if (
+      count > 0 ||
+      categories.length < 1 ||
+      brands.length < 1 ||
+      attributes.length < 1 ||
+      attributesTerms.length < 1
+    ) {
       return;
     }
 
