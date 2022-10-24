@@ -1,3 +1,4 @@
+const { faker } = require("@faker-js/faker");
 module.exports = {
   generate: async (ctx, next) => {
     try {
@@ -63,18 +64,21 @@ module.exports = {
         );
 
         const slug = variation.reduce(
-          (acc, cur) => acc + "-" + cur.replace(/ /g, "-"),
+          (acc, cur) => (acc + "-" + cur.replace(/ /g, "-")).toLowerCase(),
           product.slug
         );
+
+        const imgUrl = faker.image.abstract(800, 800, true);
 
         return {
           title: capitalize(title),
           description: product.description,
           price: product.price,
           discountPrice: product.discountPrice ?? null,
-          image: null,
+          imgUrl,
           slug,
           product: product.id,
+          stock: Math.floor(Math.random() * (100 - 20 + 1) + 20),
         };
       });
 
@@ -96,15 +100,11 @@ module.exports = {
             });
           })
         );
-        return ctx.send({
-          msg: "Variation creation successful!",
-          createAllRecords,
-        });
       } catch (e) {
         console.error(e);
       }
     } catch (e) {
-      return ctx.send({ error: e });
+      return ctx?.send({ error: e });
     }
   },
 };

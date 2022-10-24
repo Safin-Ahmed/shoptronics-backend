@@ -8,7 +8,7 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
@@ -31,18 +31,10 @@
       "type": "integer",
       "default": 0
     },
-    "image": {
-      "type": "media",
-      "multiple": false,
-      "required": true,
-      "allowedTypes": [
-        "images"
-      ]
-    },
     "slug": {
       "type": "uid",
       "targetField": "title",
-      "required": true
+      "required": false
     },
     "isTrending": {
       "type": "boolean",
@@ -95,6 +87,9 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::attributeterm.attributeterm"
+    },
+    "imgUrl": {
+      "type": "string"
     }
   }
 }
