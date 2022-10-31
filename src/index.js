@@ -19,6 +19,9 @@ module.exports = {
    */
   async bootstrap({ strapi }) {
     const count = await strapi.db.query("api::product.product").count();
+    const users = await strapi.entityService.findMany(
+      "plugin::users-permissions.user"
+    );
     const attributes = await strapi.entityService.findMany(
       "api::attribute.attribute"
     );
@@ -71,7 +74,7 @@ module.exports = {
 
       const imgUrl = faker.image.abstract(800, 800, true);
 
-      await strapi.entityService.create("api::product.product", {
+      const create = await strapi.entityService.create("api::product.product", {
         data: {
           title,
           slug,
@@ -89,6 +92,31 @@ module.exports = {
           sub_categories: subCategories,
           imgUrl,
           brand: faker.helpers.arrayElement(brands),
+        },
+      });
+
+      const allProducts = await strapi.entityService.findMany(
+        "api::product.product"
+      );
+
+      const relatedProducts = allProducts.filter(
+        (item) => item.id !== create.id
+      );
+
+      await strapi.entityService.update("api::product.product", create.id, {
+        data: {
+          relatedProducts: faker.helpers.arrayElements(relatedProducts),
+        },
+      });
+
+      await strapi.entityService.create("api::review.review", {
+        data: {
+          user: faker.helpers.arrayElement(users),
+          review: faker.lorem.paragraphs(),
+          rating: faker.helpers.arrayElement([
+            1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5,
+          ]),
+          product: faker.helpers.arrayElement(allProducts),
         },
       });
     }
