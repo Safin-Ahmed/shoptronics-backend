@@ -69,7 +69,7 @@ module.exports = {
 
       const mainCategories = faker.helpers.arrayElement(categories);
       const subCategories = faker.helpers
-        .arrayElement(mainCategories.map((item) => item.sub_categories))
+        .arrayElement(mainCategories.item.sub_categories)
         .flat();
 
       const imgUrl = faker.image.abstract(800, 800, true);
