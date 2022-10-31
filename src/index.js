@@ -64,9 +64,9 @@ module.exports = {
             .flat()
         : null;
 
-      const mainCategories = faker.helpers.arrayElements(categories);
+      const mainCategories = faker.helpers.arrayElement(categories);
       const subCategories = faker.helpers
-        .arrayElements(mainCategories.map((item) => item.sub_categories))
+        .arrayElement(mainCategories.map((item) => item.sub_categories))
         .flat();
 
       const imgUrl = faker.image.abstract(800, 800, true);
