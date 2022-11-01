@@ -8,7 +8,36 @@ module.exports = {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/*{ strapi }*/) {},
+  register({ strapi }) {
+    const extensionService = strapi.service("plugin::graphql.extension");
+    extensionService.use(({ strapi }) => ({
+      typeDefs: `
+        type Query {
+          product(slug: String!): ProductEntityResponse
+        }
+      `,
+      resolvers: {
+        Query: {
+          product: {
+            resolve: async (parent, args, context) => {
+              const { toEntityResponse } = strapi.service(
+                "plugin::graphql.format"
+              ).returnTypes;
+
+              const data = await strapi.services["api::product.product"].find({
+                filters: { slug: args.slug },
+              });
+
+              const response = toEntityResponse(data.results[0]);
+              console.log({ result: data.results, response });
+
+              return response;
+            },
+          },
+        },
+      },
+    }));
+  },
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -85,7 +114,7 @@ module.exports = {
               probability: 0.5,
             }) || null,
           isTrending: faker.helpers.maybe(() => true, { probability: 0.3 }),
-          stock: Math.floor(Math.random() * (100 - 20 + 1) + 20),
+          stock: Math.floor(Math.random() * (100 - 0 + 1) + 0),
           attributes: productAttributes,
           options: productAttributeTerms,
           categories: mainCategories,
