@@ -81,7 +81,9 @@ module.exports = {
     }
 
     for (let i = 0; i < 100; i++) {
-      const title = faker.helpers.unique(faker.commerce.productName);
+      const title = `${faker.helpers.arrayElement(
+        brands
+      )} ${faker.helpers.unique(faker.commerce.productName)}`;
       const slug = faker.helpers.slugify(title.toLowerCase());
       const productAttributes =
         faker.helpers.maybe(() => faker.helpers.arrayElements(attributes), {
