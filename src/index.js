@@ -69,6 +69,7 @@ module.exports = {
     );
 
     const brands = await strapi.entityService.findMany("api::brand.brand");
+    console.log({ brands });
 
     if (
       count > 0 ||
@@ -82,7 +83,10 @@ module.exports = {
 
     for (let i = 0; i < 100; i++) {
       const title = `${faker.helpers.arrayElement(
-        brands
+        brands.reduce((acc, cur) => {
+          acc.push(cur?.name);
+          return acc;
+        }, [])
       )} ${faker.helpers.unique(faker.commerce.productName)}`;
       const slug = faker.helpers.slugify(title.toLowerCase());
       const productAttributes =
