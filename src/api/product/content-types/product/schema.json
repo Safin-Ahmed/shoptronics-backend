@@ -103,6 +103,9 @@
         "in-stock",
         "out-of-stock"
       ]
+    },
+    "averageRating": {
+      "type": "decimal"
     }
   }
 }

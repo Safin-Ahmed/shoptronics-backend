@@ -135,16 +135,6 @@ module.exports = {
         "api::product.product"
       );
 
-      const relatedProducts = allProducts.filter(
-        (item) => item.id !== create.id
-      );
-
-      await strapi.entityService.update("api::product.product", create.id, {
-        data: {
-          relatedProducts: faker.helpers.arrayElements(relatedProducts),
-        },
-      });
-
       await strapi.entityService.create("api::review.review", {
         data: {
           user: faker.helpers.arrayElement(users),
@@ -153,6 +143,16 @@ module.exports = {
             1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5,
           ]),
           product: faker.helpers.arrayElement(allProducts),
+        },
+      });
+
+      const relatedProducts = allProducts.filter(
+        (item) => item.id !== create.id
+      );
+
+      await strapi.entityService.update("api::product.product", create.id, {
+        data: {
+          relatedProducts: faker.helpers.arrayElements(relatedProducts),
         },
       });
     }
