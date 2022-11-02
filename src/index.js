@@ -13,12 +13,12 @@ module.exports = {
     extensionService.use(({ strapi }) => ({
       typeDefs: `
         type Query {
-          product(slug: String!): ProductEntityResponse
+          productBySlug(slug: String!): ProductEntityResponse
         }
       `,
       resolvers: {
         Query: {
-          product: {
+          productBySlug: {
             resolve: async (parent, args, context) => {
               const { toEntityResponse } = strapi.service(
                 "plugin::graphql.format"
@@ -34,6 +34,12 @@ module.exports = {
               return response;
             },
           },
+        },
+      },
+
+      resolversConfig: {
+        "Query.productBySlug": {
+          auth: false,
         },
       },
     }));
