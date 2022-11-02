@@ -96,6 +96,13 @@
       "relation": "oneToMany",
       "target": "api::review.review",
       "mappedBy": "product"
+    },
+    "stockStatus": {
+      "type": "enumeration",
+      "enum": [
+        "in-stock",
+        "out-of-stock"
+      ]
     }
   }
 }

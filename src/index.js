@@ -127,6 +127,7 @@ module.exports = {
           sub_categories: subCategories,
           imgUrl,
           brand: faker.helpers.arrayElement(brands),
+          stockStatus: faker.helpers.arrayElement(["in-stock", "out-of-stock"]),
         },
       });
 
