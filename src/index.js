@@ -187,7 +187,7 @@ module.exports = {
           price: regularPrice,
           discountPrice:
             faker.helpers.maybe(
-              () => faker.commerce.price(_, regularPrice - 100),
+              () => faker.commerce.price(undefined, regularPrice - 100),
               {
                 probability: 0.5,
               }
