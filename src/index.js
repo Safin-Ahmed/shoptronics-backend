@@ -43,6 +43,69 @@ module.exports = {
         },
       },
     }));
+
+    extensionService.use(({ strapi }) => ({
+      typeDefs: `
+        type Mutation {
+          buildOrder(order: OrderData, deliveryFee: Int): OrderResponse
+        }
+
+        type OrderResponse {
+          msg: String
+          orders: [OrderDetail]
+
+        }
+
+        input CartProduct {
+          id: ID,
+          variantId: ID,
+          quantity: Int
+        }
+
+        input OrderData {
+          firstName: String,
+          lastName: String,
+          email: String,
+          phone: String,
+          address: String,
+          note: String,
+          paymentMethod: String,
+          cartProducts: [CartProduct]
+        }
+
+        
+      `,
+      resolvers: {
+        Mutation: {
+          buildOrder: {
+            resolve: async (parent, args, context) => {
+              if (!context.state.user) {
+                return {
+                  msg: "Not Authorized!",
+                };
+              }
+              console.log("CTX USER from Resolver: ", context.state.user);
+              const data = await strapi.controllers[
+                "api::order.build"
+              ].generate({
+                params: {
+                  data: args.order,
+                  user: context.state.user,
+                  deliveryFee: args.deliveryFee,
+                },
+              });
+
+              return data;
+            },
+          },
+        },
+      },
+      resolversConfig: {
+        "Mutation.buildOrder": {
+          auth: false,
+        },
+      },
+    }));
   },
 
   /**
@@ -114,17 +177,21 @@ module.exports = {
       );
 
       const imgUrl = faker.image.abstract(800, 800, true);
+      const regularPrice = faker.commerce.price();
 
       const create = await strapi.entityService.create("api::product.product", {
         data: {
           title,
           slug,
           description: faker.commerce.productDescription(),
-          price: faker.commerce.price(),
+          price: regularPrice,
           discountPrice:
-            faker.helpers.maybe(() => faker.commerce.price(), {
-              probability: 0.5,
-            }) || null,
+            faker.helpers.maybe(
+              () => faker.commerce.price(_, regularPrice - 100),
+              {
+                probability: 0.5,
+              }
+            ) || null,
           isTrending: faker.helpers.maybe(() => true, { probability: 0.3 }),
           stock: Math.floor(Math.random() * (100 - 0 + 1) + 0),
           attributes: productAttributes,

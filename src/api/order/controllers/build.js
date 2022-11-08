@@ -10,12 +10,12 @@ module.exports = {
         note,
         paymentMethod,
         cartProducts,
-      } = ctx.request.body;
+      } = ctx.params.data;
 
       // PRODUCT PRICE CALCULATION
       let subTotal = 0;
       const orderDetailObjs = [];
-      const deliveryFee = 100;
+      const deliveryFee = ctx.params.deliveryFee;
       for (let i = 0; i < cartProducts.length; i++) {
         let product;
         if (!cartProducts[i].variantId) {
@@ -68,7 +68,7 @@ module.exports = {
         phone,
         address,
         note,
-        customer: ctx.state.user.id,
+        customer: ctx.params.user.id,
         paymentMethod,
         orderStatus: "pending",
         subTotal,
@@ -101,10 +101,10 @@ module.exports = {
             });
           })
         );
-        return ctx.send({
+        return {
           msg: "Order creation successful",
-          createAllRecords,
-        });
+          orders: createAllRecords,
+        };
       } catch (e) {
         ctx.throw(400, { msg: "Order creation error" });
         console.error(e);
