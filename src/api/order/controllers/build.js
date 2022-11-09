@@ -15,7 +15,8 @@ module.exports = {
       // PRODUCT PRICE CALCULATION
       let subTotal = 0;
       const orderDetailObjs = [];
-      const deliveryFee = ctx.params.deliveryFee;
+      const deliveryFee = ctx.params.data.deliveryFee;
+      console.log({ deliveryFee });
       for (let i = 0; i < cartProducts.length; i++) {
         let product;
         if (!cartProducts[i].variantId) {

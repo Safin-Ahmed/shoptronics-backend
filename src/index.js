@@ -47,7 +47,7 @@ module.exports = {
     extensionService.use(({ strapi }) => ({
       typeDefs: `
         type Mutation {
-          buildOrder(order: OrderData, deliveryFee: Int): OrderResponse
+          buildOrder(order: OrderData): OrderResponse
         }
 
         type OrderResponse {
@@ -70,6 +70,7 @@ module.exports = {
           address: String,
           note: String,
           paymentMethod: String,
+          deliveryFee: Int,
           cartProducts: [CartProduct]
         }
 
@@ -91,7 +92,6 @@ module.exports = {
                 params: {
                   data: args.order,
                   user: context.state.user,
-                  deliveryFee: args.deliveryFee,
                 },
               });
 
