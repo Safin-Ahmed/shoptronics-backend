@@ -47,13 +47,7 @@ module.exports = {
     extensionService.use(({ strapi }) => ({
       typeDefs: `
         type Mutation {
-          buildOrder(order: OrderData): OrderResponse
-        }
-
-        type OrderResponse {
-          msg: String
-          orders: [OrderDetail]
-
+          buildOrder(order: OrderData): OrderEntityResponse
         }
 
         input CartProduct {
@@ -94,8 +88,13 @@ module.exports = {
                   user: context.state.user,
                 },
               });
+              const { toEntityResponse } = strapi.service(
+                "plugin::graphql.format"
+              ).returnTypes;
 
-              return data;
+              const response = toEntityResponse(data);
+              console.log(data);
+              return response;
             },
           },
         },

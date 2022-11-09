@@ -102,10 +102,8 @@ module.exports = {
             });
           })
         );
-        return {
-          msg: "Order creation successful",
-          orders: createAllRecords,
-        };
+        console.log({ createOrder });
+        return createOrder;
       } catch (e) {
         ctx.throw(400, { msg: "Order creation error" });
         console.error(e);
