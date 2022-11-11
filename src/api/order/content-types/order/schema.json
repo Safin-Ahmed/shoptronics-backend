@@ -77,6 +77,9 @@
       "relation": "oneToMany",
       "target": "api::order-detail.order-detail",
       "mappedBy": "order"
+    },
+    "checkout_session": {
+      "type": "string"
     }
   }
 }

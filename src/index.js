@@ -79,21 +79,35 @@ module.exports = {
                   msg: "Not Authorized!",
                 };
               }
-              console.log("CTX USER from Resolver: ", context.state.user);
-              const data = await strapi.controllers[
-                "api::order.build"
-              ].generate({
-                params: {
-                  data: args.order,
-                  user: context.state.user,
-                },
-              });
+              console.log(
+                "CTX USER from Resolver: ",
+                context.koaContext.request.header.origin
+              );
+              let data;
+              if (args.order.paymentMethod === "Stripe") {
+                data = await strapi.controllers[
+                  "api::order.build"
+                ].createStripe({
+                  params: {
+                    data: args.order,
+                    user: context.state.user,
+                    origin: context.koaContext.request.header.origin,
+                  },
+                });
+              } else {
+                data = await strapi.controllers["api::order.build"].generate({
+                  params: {
+                    data: args.order,
+                    user: context.state.user,
+                  },
+                });
+              }
               const { toEntityResponse } = strapi.service(
                 "plugin::graphql.format"
               ).returnTypes;
 
               const response = toEntityResponse(data);
-              console.log(data);
+              console.log({ data, response });
               return response;
             },
           },

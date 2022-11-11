@@ -1,3 +1,11 @@
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+/**
+ * Given a dollar amount, return the amount in cents
+ * @param {number} number
+ * @returns
+ */
+const fromDecimalToInt = (number) => parseInt(number * 100);
+
 module.exports = {
   generate: async (ctx, next) => {
     try {
@@ -112,5 +120,99 @@ module.exports = {
       console.error(e);
       ctx.send({ error: e });
     }
+  },
+
+  createStripe: async (ctx, next) => {
+    const {
+      cartProducts,
+      firstName,
+      lastName,
+      email,
+      phone,
+      address,
+      note,
+      paymentMethod,
+      deliveryFee,
+    } = ctx.params.data;
+
+    const { user, origin } = ctx.params;
+    const realProducts = [];
+    let subTotal = 0;
+    for (let i = 0; i < cartProducts.length; i++) {
+      let product;
+      if (!cartProducts[i].variantId) {
+        product = await strapi.services["api::product.product"].findOne(
+          +cartProducts[i].id
+        );
+      } else {
+        product = await strapi.services["api::variation.variation"].findOne(
+          +cartProducts[i].variantId
+        );
+      }
+
+      if (
+        cartProducts[i].quantity < 1 ||
+        cartProducts[i].quantity > product.stock
+      ) {
+        return ctx.throw(400, "Stock Unavailable!");
+      }
+
+      realProducts.push(product);
+      subTotal +=
+        (product.discountPrice || product.price) * cartProducts[i].quantity;
+    }
+    console.log({ cartProducts });
+    const lineItems = realProducts.reduce((acc, cur) => {
+      const cartProduct = cartProducts.find(
+        (item) => +item.variantId || +item.id === +cur.id
+      );
+      console.log({ cartProduct, realProduct: cur });
+      acc.push({
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: cur.title,
+          },
+          unit_amount: fromDecimalToInt(cur.discountPrice || cur.price),
+        },
+        quantity: cartProduct.quantity,
+      });
+
+      return acc;
+    }, []);
+
+    const BASE_URL = origin || "http://localhost:3000";
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      customer_email: user.email,
+      mode: "payment",
+      success_url: `${BASE_URL}/thank-you?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: BASE_URL,
+      line_items: lineItems,
+    });
+
+    // Create the order
+    const orderObj = {
+      firstName,
+      lastName,
+      email,
+      phone,
+      address,
+      note,
+      customer: ctx.params.user.id,
+      paymentMethod,
+      orderStatus: "pending",
+      subTotal,
+      total: subTotal + deliveryFee,
+      deliveryFee,
+      checkout_session: session.id,
+    };
+
+    const createOrder = await strapi.services["api::order.order"].create({
+      data: orderObj,
+    });
+
+    return createOrder;
   },
 };
