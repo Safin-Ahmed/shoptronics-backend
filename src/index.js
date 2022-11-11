@@ -1,5 +1,6 @@
 "use strict";
 const { faker } = require("@faker-js/faker");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 module.exports = {
   /**
@@ -116,6 +117,57 @@ module.exports = {
       resolversConfig: {
         "Mutation.buildOrder": {
           auth: false,
+        },
+      },
+    }));
+
+    extensionService.use(({ strapi }) => ({
+      typeDefs: `
+        type Query {
+          confirmSession(session: String!): OrderEntityResponse
+        }
+      `,
+      resolvers: {
+        Query: {
+          confirmSession: {
+            resolve: async (parent, args, context) => {
+              const { toEntityResponse } = strapi.service(
+                "plugin::graphql.format"
+              ).returnTypes;
+              const checkout_session = args.session;
+              const session = await stripe.checkout.sessions.retrieve(
+                checkout_session
+              );
+
+              if (session.payment_status === "paid") {
+                const order = await strapi.services["api::order.order"].find({
+                  filters: { checkout_session },
+                });
+                const updatedOrder = await strapi.entityService.update(
+                  "api::order.order",
+                  order.results[0].id,
+                  {
+                    data: {
+                      status: "confirmed",
+                    },
+                  }
+                );
+
+                const response = toEntityResponse(updatedOrder);
+
+                return response;
+              } else {
+                return {
+                  error: "The payment was not successful",
+                };
+              }
+            },
+          },
+        },
+      },
+      resolversConfig: {
+        "Query.confirmSession": {
+          auth: true,
         },
       },
     }));

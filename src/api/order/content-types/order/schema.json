@@ -79,7 +79,7 @@
       "mappedBy": "order"
     },
     "checkout_session": {
-      "type": "string"
+      "type": "uid"
     }
   }
 }
