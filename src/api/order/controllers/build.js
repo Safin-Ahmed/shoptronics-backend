@@ -138,6 +138,7 @@ module.exports = {
     const { user, origin } = ctx.params;
     const realProducts = [];
     let subTotal = 0;
+    const orderDetailObjs = [];
     for (let i = 0; i < cartProducts.length; i++) {
       let product;
       if (!cartProducts[i].variantId) {
@@ -158,6 +159,13 @@ module.exports = {
       }
 
       realProducts.push(product);
+      orderDetailObjs.push({
+        product: cartProducts[i].id,
+        variation: cartProducts[i].variantId,
+        price: product.price,
+        discountPrice: product.discountPrice,
+        quantity: cartProducts[i].quantity,
+      });
       subTotal +=
         (product.discountPrice || product.price) * cartProducts[i].quantity;
     }
@@ -172,6 +180,7 @@ module.exports = {
           currency: "usd",
           product_data: {
             name: cur.title,
+            images: [cur.imgUrl],
           },
           unit_amount: fromDecimalToInt(cur.discountPrice || cur.price),
         },
@@ -189,7 +198,19 @@ module.exports = {
       mode: "payment",
       success_url: `${BASE_URL}/thank-you?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: BASE_URL,
-      line_items: lineItems,
+      line_items: [
+        ...lineItems,
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Shipping",
+            },
+            unit_amount: fromDecimalToInt(+deliveryFee),
+          },
+          quantity: 1,
+        },
+      ],
     });
 
     // Create the order
@@ -212,6 +233,32 @@ module.exports = {
     const createOrder = await strapi.services["api::order.order"].create({
       data: orderObj,
     });
+
+    // Create All Records of OrderDetail
+
+    try {
+      const createAllRecords = await Promise.all(
+        orderDetailObjs.map((detail) => {
+          console.log({ detail });
+          return new Promise(async (resolve, reject) => {
+            try {
+              const created = await strapi.services[
+                "api::order-detail.order-detail"
+              ].create({
+                data: { order: createOrder.id, ...detail },
+              });
+              resolve(created);
+            } catch (e) {
+              console.error(e);
+              reject(e);
+            }
+          });
+        })
+      );
+    } catch (e) {
+      ctx.throw(400, { msg: "Order creation error" });
+      console.error(e);
+    }
 
     return createOrder;
   },
