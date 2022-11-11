@@ -190,14 +190,14 @@ module.exports = {
       return acc;
     }, []);
 
-    const BASE_URL = origin || "http://localhost:3000/checkout/thank-you";
+    const BASE_URL = origin || "http://localhost:3000";
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       customer_email: user.email,
       mode: "payment",
-      success_url: `${BASE_URL}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${BASE_URL}?session_id=0`,
+      success_url: `${BASE_URL}/checkout/thank-you?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${BASE_URL}/checkout/thank-you?session_id=0`,
       line_items: [
         ...lineItems,
         {
