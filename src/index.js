@@ -171,6 +171,55 @@ module.exports = {
         },
       },
     }));
+
+    extensionService.use(({ strapi }) => ({
+      typeDefs: `
+        type Mutation {
+          deleteWishlistByProductId(productId: ID!): WishlistEntityResponse
+        }        
+      `,
+      resolvers: {
+        Mutation: {
+          deleteWishlistByProductId: {
+            resolve: async (parent, args, context) => {
+              if (!context.state.user) {
+                return {
+                  msg: "Not Authorized!",
+                };
+              }
+
+              const userId = context.state.user.id;
+              const data = await strapi.service("api::wishlist.wishlist").find({
+                filters: {
+                  users_permissions_user: userId,
+                  product: args.productId,
+                },
+              });
+
+              if (!data.results[0] || !data) {
+                return null;
+              }
+
+              const deleted = await strapi.entityService.delete(
+                "api::wishlist.wishlist",
+                data.results[0].id
+              );
+              const { toEntityResponse } = strapi.service(
+                "plugin::graphql.format"
+              ).returnTypes;
+
+              const response = toEntityResponse(deleted);
+              return response;
+            },
+          },
+        },
+      },
+      resolversConfig: {
+        "Mutation.buildOrder": {
+          auth: false,
+        },
+      },
+    }));
   },
 
   /**
