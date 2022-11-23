@@ -1,0 +1,7 @@
+# .dockerignore
+.tmp/
+.cache/
+.git/
+build/
+node_modules/
+data/
